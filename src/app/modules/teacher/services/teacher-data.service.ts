@@ -2,37 +2,44 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, forkJoin } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDataService {
+  private readonly apiUrl = environment.apiUrl;
+
   constructor(private readonly http: HttpClient) {}
 
+  private buildUrl(path: string): string {
+    return `${this.apiUrl}${path}`;
+  }
+
   getMyClassesWithCourses(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:8090/api/projects/my-classes-courses');
+    return this.http.get<any[]>(this.buildUrl('/api/projects/my-classes-courses'));
   }
 
   getMyProjects(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:8090/api/teacher/projects');
+    return this.http.get<any[]>(this.buildUrl('/api/teacher/projects'));
   }
 
   getMyGroups(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:8090/api/teacher/groups');
+    return this.http.get<any[]>(this.buildUrl('/api/teacher/groups'));
   }
 
   getMyTasks(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:8090/api/tasks');
+    return this.http.get<any[]>(this.buildUrl('/api/tasks'));
   }
 
   getTasksByClassId(classId: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8090/api/tasks/by-class/${classId}`);
+    return this.http.get<any[]>(this.buildUrl(`/api/tasks/by-class/${classId}`));
   }
 
   getTasksByProjectId(projectId: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8090/api/tasks/by-project/${projectId}`);
+    return this.http.get<any[]>(this.buildUrl(`/api/tasks/by-project/${projectId}`));
   }
 
   createProject(project: any) {
-    return this.http.post<any>('http://localhost:8090/api/projects', project);
+    return this.http.post<any>(this.buildUrl('/api/projects'), project);
   }
 
   updateProject(project: any) {
@@ -44,27 +51,27 @@ export class TeacherDataService {
       classIds: project.classIds ?? (project.classes ? project.classes.map((c: any) => c.id ?? c.classId) : []),
       collaboratorIds: project.collaboratorIds ?? (project.collaborators ? project.collaborators.map((u: any) => u.id) : [])
     };
-    return this.http.put<any>(`http://localhost:8090/api/projects/${project.id}`, payload);
+    return this.http.put<any>(this.buildUrl(`/api/projects/${project.id}`), payload);
   }
 
   deleteProject(projectId: string) {
-    return this.http.delete<any>(`http://localhost:8090/api/projects/${projectId}`);
+    return this.http.delete<any>(this.buildUrl(`/api/projects/${projectId}`));
   }
 
   addCollaborator(projectId: string, userEmail: string) {
-    return this.http.post<any>(`http://localhost:8090/api/projects/${projectId}/collaborators/${userEmail}`, {});
+    return this.http.post<any>(this.buildUrl(`/api/projects/${projectId}/collaborators/${userEmail}`), {});
   }
 
   removeCollaborator(projectId: string, userId: string) {
-    return this.http.delete<any>(`http://localhost:8090/api/projects/${projectId}/collaborators/${userId}`);
+    return this.http.delete<any>(this.buildUrl(`/api/projects/${projectId}/collaborators/${userId}`));
   }
 
   getAllUsers(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:8090/api/v1/users');
+    return this.http.get<any[]>(this.buildUrl('/api/v1/users'));
   }
 
   getAllUserSummaries(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:8090/api/v1/users/summary');
+    return this.http.get<any[]>(this.buildUrl('/api/v1/users/summary'));
   }
 
   getMyClasses(): Observable<any[]> {
@@ -79,69 +86,69 @@ export class TeacherDataService {
 
   getStudentsByClassId(classId: string): Observable<any[]> {
     // Updated to use the correct backend endpoint for group creation
-    return this.http.get<any[]>(`http://localhost:8090/api/v1/users/classes/${classId}/students`);
+    return this.http.get<any[]>(this.buildUrl(`/api/v1/users/classes/${classId}/students`));
   }
 
   getMyStudents(): Observable<any[]> {
     // Replace with your actual backend endpoint
-    return this.http.get<any[]>('http://localhost:8090/api/teacher/students');
+    return this.http.get<any[]>(this.buildUrl('/api/teacher/students'));
   }
 
   getMyRepositories(): Observable<any[]> {
     // Replace with your actual backend endpoint
-    return this.http.get<any[]>('http://localhost:8090/api/teacher/repositories');
+    return this.http.get<any[]>(this.buildUrl('/api/teacher/repositories'));
   }
 
   // GROUP MANAGEMENT
   createGroup(group: any) {
-    return this.http.post<any>('http://localhost:8090/api/groups', group);
+    return this.http.post<any>(this.buildUrl('/api/groups'), group);
   }
 
   updateGroup(groupId: string, group: any) {
     // group is expected to be in DTO format: { id, name, classeId, projectId, studentIds }
-    return this.http.put<any>(`http://localhost:8090/api/groups/${groupId}`, group);
+    return this.http.put<any>(this.buildUrl(`/api/groups/${groupId}`), group);
   }
 
   deleteGroup(groupId: string, deleteRepository: boolean = false) {
     const params = deleteRepository ? '?deleteRepository=true' : '';
-    return this.http.delete<any>(`http://localhost:8090/api/groups/${groupId}${params}`);
+    return this.http.delete<any>(this.buildUrl(`/api/groups/${groupId}${params}`));
   }
 
   getGroupsByProject(projectId: string) {
-    return this.http.get<any[]>(`http://localhost:8090/api/groups?projectId=${projectId}`);
+    return this.http.get<any[]>(this.buildUrl(`/api/groups?projectId=${projectId}`));
   }
 
   getGroupsByProjectAndClass(projectId: string, classeId: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8090/api/groups/by-project-and-class?projectId=${projectId}&classeId=${classeId}`);
+    return this.http.get<any[]>(this.buildUrl(`/api/groups/by-project-and-class?projectId=${projectId}&classeId=${classeId}`));
   }
 
   createTask(task: any) {
-    return this.http.post<any>('http://localhost:8090/api/tasks', task);
+    return this.http.post<any>(this.buildUrl('/api/tasks'), task);
   }
 
   updateTaskStatus(taskId: string, status: string) {
-    return this.http.put<any>(`http://localhost:8090/api/tasks/${taskId}`, { status });
+    return this.http.put<any>(this.buildUrl(`/api/tasks/${taskId}`), { status });
   }
 
   updateTaskVisibility(taskId: string, visible: boolean) {
-    return this.http.put<any>(`http://localhost:8090/api/tasks/${taskId}`, { visible });
+    return this.http.put<any>(this.buildUrl(`/api/tasks/${taskId}`), { visible });
   }
 
   deleteTask(taskId: string) {
-    return this.http.delete<any>(`http://localhost:8090/api/tasks/${taskId}`);
+    return this.http.delete<any>(this.buildUrl(`/api/tasks/${taskId}`));
   }
 
   updateTask(taskId: string, update: any) {
-    return this.http.put<any>(`http://localhost:8090/api/tasks/${taskId}`, update);
+    return this.http.put<any>(this.buildUrl(`/api/tasks/${taskId}`), update);
   }
 
   getDashboard(): Observable<any> {
-    return this.http.get<any>('http://localhost:8090/api/teacher/dashboard');
+    return this.http.get<any>(this.buildUrl('/api/teacher/dashboard'));
   }
 
   // SUBMISSION AND GRADE MANAGEMENT
   getSubmissionsForTask(taskId: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8090/api/submissions/task/${taskId}`);
+    return this.http.get<any[]>(this.buildUrl(`/api/submissions/task/${taskId}`));
   }
 
   getSubmissionsForProject(projectId: string): Observable<any[]> {

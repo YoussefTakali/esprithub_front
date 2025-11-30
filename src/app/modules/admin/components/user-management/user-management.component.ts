@@ -5,6 +5,7 @@ import { UserService } from '../../../../shared/services/user.service';
 import { AcademicService } from '../../../../shared/services/academic.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { User, UserRole, Departement, CreateUser, UpdateUser } from '../../../../shared/models/academic.models';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-user-management',
@@ -12,6 +13,7 @@ import { User, UserRole, Departement, CreateUser, UpdateUser } from '../../../..
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
+  private readonly apiUrl = environment.apiUrl;
   users: User[] = [];
   departments: Departement[] = [];
   userRoles = Object.values(UserRole);
@@ -254,7 +256,7 @@ export class UserManagementComponent implements OnInit {
   // Export users as CSV
   exportData() {
     // Adjust the URL if your backend is hosted elsewhere
-    fetch('http://localhost:8090/api/v1/admin/users/export', {
+    fetch(`${this.apiUrl}/api/v1/admin/users/export`, {
       method: 'GET',
       headers: {
         'Accept': 'text/csv'

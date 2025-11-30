@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthResponse } from './auth.service';
+import { environment } from 'src/environments/environment';
 
 export interface GitHubTokenRequest {
   code: string;
@@ -105,7 +106,7 @@ export interface GitHubFile {
   providedIn: 'root'
 })
 export class GitHubService {
-  private readonly API_URL = 'http://localhost:8090/api/v1';
+  private readonly API_URL = `${environment.apiUrl}/api/v1`;
 
   constructor(private readonly http: HttpClient) {}
 
